@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: readiness-before
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: readiness-before
+  template:
+    metadata:
+      labels:
+        app: readiness-before
+    spec:
+      containers:
+      - name: demo-app
+        image: k8s-demo-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        env:
+          - name: START_UP_DELAY
+            value: "10000"

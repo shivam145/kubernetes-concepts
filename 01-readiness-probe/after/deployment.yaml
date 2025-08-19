@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: readiness-after
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: readiness-after
+  template:
+    metadata:
+      labels:
+        app: readiness-after
+    spec:
+      containers:
+      - name: demo-app
+        image: k8s-demo-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 3000
+          # initialDelaySeconds: 5
+          periodSeconds: 5
+        env:
+          - name: START_UP_DELAY
+            value: "10000"

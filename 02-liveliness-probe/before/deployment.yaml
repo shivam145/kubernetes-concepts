@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: liveness-before
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: liveness-before
+  template:
+    metadata:
+      labels:
+        app: liveness-before
+    spec:
+      containers:
+      - name: demo-app
+        image: <your-dockerhub-username>/k8s-demo-app:latest
+        ports:
+        - containerPort: 3000
