@@ -1,5 +1,5 @@
 const express = require("express");
-const scenarios = require("./scenarios");
+const scenarios = require("./scenarios/index");
 
 const app = express();
 const port = process.env.PORT || 8083;
@@ -9,7 +9,7 @@ app.use(express.json());
 // Run a scenario test via API
 app.post("/run/:scenario", async (req, res) => {
   const { scenario } = req.params;
-  const { target, rps = 5, duration = 30 } = req.body;
+  const { target, rps = 5, duration = 15 } = req.body;
 
   if (!scenarios[scenario]) {
     return res.status(400).json({ error: `Unknown scenario: ${scenario}` });

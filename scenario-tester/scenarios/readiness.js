@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-async function run({ target, rps, duration }) {
+async function run({ target , rps, duration }) {
   console.log(`Load testing [Readiness] on ${target} with ${rps} RPS for ${duration} seconds...`);
 
   let total = 0;

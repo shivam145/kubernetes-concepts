@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scenario-tester
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scenario-tester
+  template:
+    metadata:
+      labels:
+        app: scenario-tester
+    spec:
+      containers:
+      - name: scenario-tester
+        image: scenario-tester:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8083
