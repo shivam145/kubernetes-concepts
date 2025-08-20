@@ -1,6 +1,6 @@
 # 📖 FAQ – Probes in Kubernetes
 
-### ❓ Is a **startup probe** required if readiness is in place?
+## ❓ Is a **startup probe** required if readiness is in place?
 
 Not always.
 
@@ -10,7 +10,7 @@ Not always.
 
 ---
 
-### ❓ Once a pod is ready, will readiness probe run again?
+## ❓ Once a pod is ready, will readiness probe run again?
 
 Yes ✅
 
@@ -21,7 +21,7 @@ Yes ✅
 
 ---
 
-### ❓ Why do we need a **liveness probe** if readiness already exists?
+## ❓ Why do we need a **liveness probe** if readiness already exists?
 
 * **Readiness Probe**
 
@@ -68,7 +68,7 @@ Because they solve different problems:
 ---
 
 
-### ❓ What happens if none of the pods are ready, but I send traffic to the Service?
+## ❓ What happens if none of the pods are ready, but I send traffic to the Service?
 
 * The Service has no healthy endpoints to route to.
 * Requests will typically result in **`502 Bad Gateway`** or connection failures (depends on client).
@@ -77,7 +77,7 @@ Because they solve different problems:
 ---
 
 
-### 🔄 What is the Execution Order of Probes?
+## ❓ What is the Execution Order of Probes?
 
 1. **Startup Probe (if defined)**
 
@@ -112,4 +112,62 @@ Because they solve different problems:
 ---
 
 
-how should my healthcheck endpoint look like if i have depedncies like mongo, redis, nats , postgres etc
+## ❓ How should my healthcheck endpoint look like if i have dependencies like mongo, redis, nats , postgres etc
+
+One important point is that you liveness and readiness endpoints usually will be different due to their behaviours
+
+
+### 🟢 1. **Liveness Probe Endpoint (`/healthz` or `/live`)**
+
+* Purpose: **Am I alive as a process?**
+* Should be **very lightweight** (no dependency checks).
+* Example: just return `200 OK` if your app is running and able to serve requests at all.
+* Why: If dependency goes down (say Redis), killing/restarting your app won’t help → so liveness should not depend on external services.
+
+```js
+// Example: Express.js Liveness Check
+app.get('/live', (req, res) => {
+  res.status(200).send('OK');
+});
+```
+
+---
+
+### 🟡 2. **Readiness Probe Endpoint (`/ready`)**
+
+* Purpose: **Am I ready to serve traffic?**
+* Here you **should** check dependencies your app needs to serve requests.
+* Example checks:
+
+  * **Postgres**: can I open a connection & run a lightweight query (`SELECT 1`)?
+  * **MongoDB**: is the driver connected and not in reconnect loop?
+  * **Redis**: can I `PING` and get `PONG`?
+  * **NATS**: is the client connected and subscribed successfully?
+
+```js
+// Example: Express.js Readiness Check
+app.get('/ready', async (req, res) => {
+  try {
+    await pg.query('SELECT 1');              // Postgres
+    await mongoClient.db('admin').command({ ping: 1 }); // Mongo
+    await redis.ping();                      // Redis
+    if (!natsConnection.isClosed()) {        // NATS
+      return res.status(200).send('READY');
+    }
+    throw new Error("NATS not connected");
+  } catch (err) {
+    res.status(503).send(`NOT READY: ${err.message}`);
+  }
+});
+```
+
+---
+
+### 🔎 Best Practices
+
+* **Keep liveness cheap** → just say “yes I’m alive”.
+* **Do dependency checks in readiness** → so if DB or cache is down, pod is removed from Service endpoints until healthy again.
+* **Timeouts** → make each dependency check **fast (e.g., <200ms)** to avoid blocking.
+* **Grace period** → sometimes during startup dependencies aren’t available immediately, so use readiness probe with `initialDelaySeconds`.
+
+
