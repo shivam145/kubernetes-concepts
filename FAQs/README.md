@@ -168,6 +168,6 @@ app.get('/ready', async (req, res) => {
 * **Keep liveness cheap** → just say “yes I’m alive”.
 * **Do dependency checks in readiness** → so if DB or cache is down, pod is removed from Service endpoints until healthy again.
 * **Timeouts** → make each dependency check **fast (e.g., <200ms)** to avoid blocking.
-* **Grace period** → sometimes during startup dependencies aren’t available immediately, so use readiness probe with `initialDelaySeconds`.
+* **Grace period** → sometimes during startup dependencies aren’t available immediately, so use readiness probe with `initialDelaySeconds`
 
 
