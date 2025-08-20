@@ -88,7 +88,7 @@ spec:
 
 
 
-# Readiness Probe Demo
+# Readiness Probe Demo - what does the demo cover?
 
 ## Before
 Pods are marked ready immediately after starting. The service may send traffic before the app is ready, causing failures.

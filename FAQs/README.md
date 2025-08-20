@@ -75,3 +75,41 @@ Because they solve different problems:
 * Kubernetes does **not** “queue” or “hold” requests until pods become ready.
 
 ---
+
+
+### 🔄 What is the Execution Order of Probes?
+
+1. **Startup Probe (if defined)**
+
+   * Runs **first** and has **priority** over the others.
+   * While the startup probe is running, **readiness and liveness probes are disabled**.
+   * Once it succeeds → startup probe stops, and Kubernetes starts running the other probes.
+   * If it fails → the container is killed & restarted.
+
+2. **Readiness Probe**
+
+   * Starts running **after startup probe (if any)** has succeeded.
+   * Controls whether the pod is included in Service load balancing.
+   * Runs periodically until the pod dies.
+
+3. **Liveness Probe**
+
+   * Also starts after startup probe (if any) has succeeded.
+   * Runs in parallel with readiness probe.
+   * If it fails, Kubernetes restarts the container (not just marks it unready).
+
+
+### 📌 Simplified Flow
+
+```
+[Startup Probe] --> (succeeds) --> [Readiness + Liveness run in parallel]
+                                     |
+                                     +--> Readiness decides: serve traffic or not
+                                     |
+                                     +--> Liveness decides: restart pod or not
+```
+
+---
+
+
+how should my healthcheck endpoint look like if i have depedncies like mongo, redis, nats , postgres etc

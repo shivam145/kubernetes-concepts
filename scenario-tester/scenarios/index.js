@@ -1,5 +1,5 @@
 module.exports = {
     readiness: require("./readiness"),
-    // liveness: require("./liveness") // later
+    liveness: require("./liveness") 
   };
   

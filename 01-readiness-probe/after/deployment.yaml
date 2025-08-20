@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: readiness-after
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
       app: readiness-after

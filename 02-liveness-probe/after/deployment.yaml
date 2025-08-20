@@ -14,12 +14,17 @@ spec:
     spec:
       containers:
       - name: demo-app
-        image: <your-dockerhub-username>/k8s-demo-app:latest
+        image: k8s-demo-app:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         livenessProbe:
           httpGet:
             path: /healthz
             port: 3000
-          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 3000
           periodSeconds: 5

@@ -7,6 +7,9 @@ let isReady = true;
 let startUpDelay =  parseInt(process.env.START_UP_DELAY) || 5000;
 // Root endpoint
 app.get('/', (req, res) => {
+    if (!isHealthy) {
+        while(true) {}
+    }
   res.send('Hello from Kubernetes Demo App 🚀');
 });
 
