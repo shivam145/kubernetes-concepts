@@ -88,7 +88,7 @@ spec:
 
 
 
-# Readiness Probe Demo - what does the demo cover?
+# Readiness Probe Demo
 
 ## Before
 Pods are marked ready immediately after starting. The service may send traffic before the app is ready, causing failures.
@@ -96,11 +96,50 @@ Pods are marked ready immediately after starting. The service may send traffic b
 ## After
 Readiness probe ensures pods only receive traffic when they are truly ready (`/readyz` endpoint).
 
-### Run Demo
-```bash
-kubectl apply -f before/
-# Watch pods & service, note failures when app starts
-kubectl delete -f before/
+## 📂 Structure
 
+* `before/` → Deployment and Service **without readiness probes**.
+* `after/` → Deployment and Service **with readiness probes**.
+
+---
+
+## 🚀 How to Run
+
+### Option 1: Use the Script
+
+Simply run the prebuilt demo script from the `scripts/` folder:
+
+```bash
+cd ../../scripts
+./run-readiness-demo.sh
+```
+
+This will automatically apply both cases, generate traffic, and show results.
+
+### Option 2: Run Manually
+
+Apply manifests directly:
+
+```bash
+# Run "before" case
+kubectl apply -f before/
+
+# Scale or send traffic to observe failures
+kubectl scale deploy readiness-before --replicas=5
+
+# Run "after" case
 kubectl apply -f after/
-# Pods will only be ready when /readyz passes
+kubectl scale deploy readiness-after --replicas=5
+```
+
+---
+
+## 🧪 Experiment
+
+You can tweak:
+
+* Readiness probe configuration (`httpGet`, `initialDelaySeconds`, etc.)
+* Replica count during scaling.
+* App response behavior.
+
+This lets you explore how readiness probes affect traffic routing when pods are not yet ready.
