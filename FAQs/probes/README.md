@@ -171,3 +171,44 @@ app.get('/ready', async (req, res) => {
 * **Grace period** → sometimes during startup dependencies aren’t available immediately, so use readiness probe with `initialDelaySeconds`
 
 
+---
+
+# 🧮 Probe Tuning Decision Table
+
+| Scenario                            | Startup Time (app only) | Dependency Readiness (DB, Redis, etc.) | Liveness Probe (initialDelay / period / timeout / failureThreshold) | Readiness Probe (initialDelay / period / timeout / failureThreshold) |
+| ----------------------------------- | ----------------------- | -------------------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **Fast app, no heavy deps**         | < 5s                    | N/A                                    | 5s / 10s / 2s / 3                                                   | 5s / 10s / 2s / 3                                                    |
+| **Medium app, DB/cache needed**     | 5–15s                   | < 10s                                  | 5s / 10s / 2s / 3                                                   | 15s / 10s / 3s / 3                                                   |
+| **Slow app, DB takes time**         | 15–30s                  | 10–20s                                 | 10s / 10s / 3s / 3                                                  | 30s / 10s / 5s / 3                                                   |
+| **Very slow startup (legacy/Java)** | > 30s                   | > 20s                                  | 20s / 15s / 5s / 5                                                  | 45s / 15s / 5s / 3                                                   |
+| **Worker job (not user-facing)**    | < 10s                   | Optional                               | 5s / 30s / 2s / 3                                                   | Optional (skip or set high values if needed)                         |
+
+---
+
+## 🔎 How to Use This Table
+
+1. **Measure** your app’s startup (process) + dependency readiness (DB, cache, MQ).
+2. Pick the closest scenario row.
+3. Apply the suggested values, then **tune with chaos tests & monitoring**.
+
+---
+
+## 🚦 Quick Rules of Thumb
+
+* **Liveness probes**:
+
+  * Keep simple (check only app, not external deps).
+  * Shorter delays & periods → faster recovery.
+* **Readiness probes**:
+
+  * Include dependency checks.
+  * Longer delays → avoids sending traffic too early.
+* **Batch/Worker pods**: often don’t need readiness, only liveness.
+
+---
+
+👉 This way, your team doesn’t have to “guess” — they just classify the app into one of the categories.
+
+Do you want me to also give you a **YAML snippet template per row** so that people can copy-paste the right probe configs quickly?
+
+
